@@ -1,8 +1,27 @@
 from times import time_range,compute_overlap_time
-from pytest import raises
+import pytest
+
+input_expected = [(time_range("2010-01-12 10:00:00", "2010-01-12 12:00:00"),
+  time_range("2010-01-12 10:30:00", "2010-01-12 10:45:00", 2, 60),
+  [("2010-01-12 10:30:00","2010-01-12 10:37:00"), ("2010-01-12 10:38:00", "2010-01-12 10:45:00")]),
+
+  (time_range("2010-01-12 10:00:00", "2010-01-12 11:00:00"),
+  time_range("2010-01-12 12:30:00", "2010-01-12 12:45:00", 2, 60),
+  []),
+
+  (time_range("2010-01-12 10:00:00", "2010-01-12 13:00:00", 3, 900),
+  time_range("2010-01-12 10:40:00", "2010-01-12 11:20:00", 2, 120),
+  [("2010-01-12 10:40:00","2010-01-12 10:50:00"), ("2010-01-12 11:05:00", "2010-01-12 11:20:00")]),
+
+  (time_range("2010-01-12 10:00:00", "2010-01-12 11:00:00"),
+  time_range("2010-01-12 11:00:00", "2010-01-12 12:45:00"),
+  [])]
+
+@pytest.mark.parametrize("time1, time2, expected_overlap",input_expected)
+def test_overlap(time1,time2,expected_overlap):
+        assert compute_overlap_time(time1,time2) == expected_overlap
 
 def test_given_input():
-
         large = time_range("2010-01-12 10:00:00", "2010-01-12 12:00:00")
         short = time_range("2010-01-12 10:30:00", "2010-01-12 10:45:00", 2, 60)
         result = compute_overlap_time(large, short)
@@ -29,5 +48,5 @@ def test_touching_edges():
     assert compute_overlap_time(before, after) == expected
 
 def test_backwards_time():
-    with raises(ValueError):
+    with pytest.raises(ValueError):
         assert time_range("2010-01-12 10:45:00","2010-01-12 10:30:00",2, 60)
